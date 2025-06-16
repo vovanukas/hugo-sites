@@ -1,0 +1,8 @@
+baseURL = "/"
+defaultLanguage = "en"
+title = "MDFriday"
+description = "MDFriday homepage, showcase the product or service."
+theme = "theme-long-teng"
+
+[params]
+    Author = 'sunwei'
