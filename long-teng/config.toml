@@ -6,3 +6,11 @@ theme = "theme-long-teng"
 
 [params]
     Author = 'sunwei'
+
+[module]
+  [[module.mounts]]
+    source = 'assets'
+    target = 'assets'
+  [[module.mounts]]
+    source = 'static'
+    target = 'assets'

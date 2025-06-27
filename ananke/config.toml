@@ -39,3 +39,11 @@ recent_posts_number = 3
 [[params.ananke_socials]]
 name = "twitter"
 url = "https://twitter.com/GoHugoIO"
+
+[module]
+  [[module.mounts]]
+    source = 'assets'
+    target = 'assets'
+  [[module.mounts]]
+    source = 'static'
+    target = 'assets'
