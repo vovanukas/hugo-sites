@@ -6,6 +6,11 @@ on:
   push:
     branches: ["main"]
   workflow_dispatch:
+    inputs:
+      callbackUrl:
+        description: 'Callback URL for deployment status'
+        required: false
+        type: string
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -21,6 +26,7 @@ env:
   NODE_VERSION: "18.15.0"
   TINA_CLIENT_ID: ${{ vars.TINA_CLIENT_ID }}
   TINA_TOKEN: ${{ vars.TINA_TOKEN }}
+  CALLBACK_URL: ${{ inputs.callbackUrl || 'https://cool-pelican-27.convex.site/callbackPageDeployed' }}
 
 jobs:
   # Build job
@@ -33,21 +39,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install Hugo
-        run: |
-          curl -LO "https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}/hugo_extended_${{ env.HUGO_VERSION }}_Linux-64bit.tar.gz"
-          tar -xvf hugo_extended_${{ env.HUGO_VERSION }}_Linux-64bit.tar.gz
-          sudo mv hugo /usr/local/bin/
-          rm hugo_extended_${{ env.HUGO_VERSION }}_Linux-64bit.tar.gz
-          hugo version
-
-      - name: Install Go
-        run: |
-          curl -LO "https://dl.google.com/go/go${{ env.GO_VERSION }}.linux-amd64.tar.gz"
-          sudo tar -C /usr/local -xzf go${{ env.GO_VERSION }}.linux-amd64.tar.gz
-          echo "export PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
-          rm go${{ env.GO_VERSION }}.linux-amd64.tar.gz
-          go version
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+          extended: true
 
       - name: Setup Project
         run: npm run project-setup
@@ -79,7 +75,7 @@ jobs:
         if: success()
         uses: distributhor/workflow-webhook@v3
         with:
-          webhook_url: https://cool-pelican-27.convex.site/callbackPageDeployed
+          webhook_url: ${{ env.CALLBACK_URL }}
           webhook_auth_type: bearer
           webhook_auth: ${{ secrets.CALLBACK_BEARER }}
           data: '{ "buildStatus": "BUILT", "publishStatus": "PUBLISHED" }'
@@ -88,7 +84,7 @@ jobs:
         if: failure()
         uses: distributhor/workflow-webhook@v3
         with:
-          webhook_url: https://cool-pelican-27.convex.site/callbackPageDeployed
+          webhook_url: ${{ env.CALLBACK_URL }}
           webhook_auth_type: bearer
           webhook_auth: ${{ secrets.CALLBACK_BEARER }}
           data: '{ "buildStatus": "BUILT", "publishStatus": "ERROR" }'
