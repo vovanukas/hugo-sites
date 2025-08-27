@@ -26,7 +26,7 @@ env:
   NODE_VERSION: "18.15.0"
   TINA_CLIENT_ID: ${{ vars.TINA_CLIENT_ID }}
   TINA_TOKEN: ${{ vars.TINA_TOKEN }}
-  CALLBACK_URL: ${{ inputs.callbackUrl || 'https://cool-pelican-27.convex.site/callbackPageDeployed' }}
+  CALLBACK_URL: ${{ secrets.CALLBACK_URL }}
 
 jobs:
   # Build job
@@ -75,7 +75,7 @@ jobs:
         if: success()
         uses: distributhor/workflow-webhook@v3
         with:
-          webhook_url: ${{ env.CALLBACK_URL }}
+          webhook_url: ${{ env.CALLBACK_URL }}/callbackPageDeployed
           webhook_auth_type: bearer
           webhook_auth: ${{ secrets.CALLBACK_BEARER }}
           data: '{ "buildStatus": "BUILT", "publishStatus": "PUBLISHED" }'
@@ -84,7 +84,7 @@ jobs:
         if: failure()
         uses: distributhor/workflow-webhook@v3
         with:
-          webhook_url: ${{ env.CALLBACK_URL }}
+          webhook_url: ${{ env.CALLBACK_URL }}/callbackPageDeployed
           webhook_auth_type: bearer
           webhook_auth: ${{ secrets.CALLBACK_BEARER }}
           data: '{ "buildStatus": "BUILT", "publishStatus": "ERROR" }'
