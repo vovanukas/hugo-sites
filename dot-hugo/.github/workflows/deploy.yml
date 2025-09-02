@@ -79,7 +79,7 @@ jobs:
         if: success()
         uses: distributhor/workflow-webhook@v3
         with:
-          webhook_url: https://cool-pelican-27.convex.site/callbackPageDeployed
+          webhook_url: ${{ secrets.CONVEX_SITE_URL }}/callbackPageDeployed
           webhook_auth_type: bearer
           webhook_auth: ${{ secrets.CALLBACK_BEARER }}
           data: '{ "buildStatus": "BUILT", "publishStatus": "PUBLISHED" }'
@@ -88,7 +88,7 @@ jobs:
         if: failure()
         uses: distributhor/workflow-webhook@v3
         with:
-          webhook_url: https://cool-pelican-27.convex.site/callbackPageDeployed
+          webhook_url: ${{ secrets.CONVEX_SITE_URL }}/callbackPageDeployed
           webhook_auth_type: bearer
           webhook_auth: ${{ secrets.CALLBACK_BEARER }}
           data: '{ "buildStatus": "BUILT", "publishStatus": "ERROR" }'
