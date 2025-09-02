@@ -1,0 +1,61 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+    runs-on: ubuntu-latest
+    concurrency:
+      group: \${{ github.workflow }}-\${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.128.0'
+          extended: true
+
+      - name: Build
+        run: hugo --minify
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Notify on success
+        if: success()
+        uses: distributhor/workflow-webhook@v3
+        with:
+          webhook_url: ${{ secrets.CONVEX_SITE_URL }}/callbackPageDeployed
+          webhook_auth_type: bearer
+          webhook_auth: ${{ secrets.CALLBACK_BEARER }}
+          data: '{ "buildStatus": "BUILT", "publishStatus": "PUBLISHED" }'
+
+      - name: Notify on failure
+        if: failure()
+        uses: distributhor/workflow-webhook@v3
+        with:
+          webhook_url: ${{ secrets.CONVEX_SITE_URL }}/callbackPageDeployed
+          webhook_auth_type: bearer
+          webhook_auth: ${{ secrets.CALLBACK_BEARER }}
+          data: '{ "buildStatus": "BUILT", "publishStatus": "ERROR" }'
